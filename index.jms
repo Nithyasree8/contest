@@ -1,0 +1,82 @@
+
+import React, { useState, useEffect } from 'react';
+
+function App() {
+  const [pincode, setPincode] = useState('');
+  const [data, setData] = useState({});
+  const [filter, setFilter] = useState('');
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handlePincodeChange = (e) => {
+    setPincode(e.target.value);
+  };
+
+  const handleFilterChange = (e) => {
+    setFilter(e.target.value);
+  };
+
+  const handleLookupClick = () => {
+    if (pincode.length !== 6) {
+      setError('Please enter a 6-digit pincode');
+      return;
+    }
+
+    setLoading(true);
+    fetch(`(link unavailable))
+      .then((response) => response.json())
+      .then((data) => {
+        setData(data[0]);
+        setError(null);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setError('Error fetching data');
+        setLoading(false);
+      });
+  };
+
+  const filteredData = Object.keys(data).filter((key) => {
+    if (filter === '') return true;
+    return data[key].toLowerCase().includes(filter.toLowerCase());
+  });
+
+  return (
+    <div>
+      <h1>Pincode Lookup</h1>
+      <input
+        type="text"
+        value={pincode}
+        onChange={handlePincodeChange}
+        placeholder="Enter pincode"
+      />
+      <button onClick={handleLookupClick}>Lookup</button>
+      {loading ? (
+        <div>Loading...</div>
+      ) : error ? (
+        <div style={{ color: 'red' }}>{error}</div>
+      ) : (
+        <div>
+          <h2>Post Office Details</h2>
+          <input
+            type="text"
+            value={filter}
+            onChange={handleFilterChange}
+            placeholder="Filter by post office name"
+          />
+          {filteredData.length === 0 ? (
+            <div>Couldn't find the postal data you're looking for…</div>
+          ) : (
+            <ul>
+              {filteredData.map((key) => (
+                <li key={key}>{key}: {data[key]}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
